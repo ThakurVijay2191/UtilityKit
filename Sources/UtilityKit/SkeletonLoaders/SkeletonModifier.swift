@@ -7,15 +7,18 @@
 
 import SwiftUI
 
-extension View {
-    func skeleton(isRedacted: Bool)-> some View {
+public extension View {
+    func skeleton(_ isRedacted: Bool)-> some View {
         self
-            .modifier(SkeletonShimmerModifier(isRedacted: isRedacted))
+            .modifier(SkeletonShimmerModifier(isRedacted))
     }
 }
 
 fileprivate struct SkeletonShimmerModifier: ViewModifier {
-    var isRedacted: Bool
+    private var isRedacted: Bool
+    init(_ isRedacted: Bool) {
+        self.isRedacted = isRedacted
+    }
     @State private var isAnimating: Bool = false
     @Environment(\.colorScheme) private var colorScheme
     func body(content: Content) -> some View {
@@ -69,18 +72,4 @@ fileprivate struct SkeletonShimmerModifier: ViewModifier {
     var animation: Animation {
         .easeInOut(duration: 1.5).repeatForever(autoreverses: false)
     }
-}
-
-struct SampleView: View {
-    var body: some View {
-        Rectangle()
-            .fill(.red)
-            .frame(height: 400)
-            .skeleton(isRedacted: true)
-            .padding(20)
-    }
-}
-
-#Preview {
-    SampleView()
 }

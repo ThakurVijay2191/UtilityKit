@@ -5,6 +5,7 @@
 //  Created by Vijay Thakur on 17/05/25.
 //
 
+import SwiftUI
 
 @available(iOS 17.0, *)
 public struct SkeletonShimmer<S: Shape>: View {
