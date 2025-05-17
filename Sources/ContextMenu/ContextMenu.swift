@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 17.0, *)
-public struct CustomContextMenu<Content: View, Preview: View>: View{
+public struct ContextMenu<Content: View, Preview: View>: View{
     private var content: Content
     private var preview: Preview
     private var menu: UIMenu
