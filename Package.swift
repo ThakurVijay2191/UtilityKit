@@ -8,7 +8,7 @@ let package = Package(
     products: [
         .library(
             name: "UtilityKit",
-            targets: ["UtilityKit"]),
+            targets: ["UtilityKit", "ContextMenu"]),
         .library(name: "ContextMenu", targets: ["ContextMenu"])
     ],
     targets: [
