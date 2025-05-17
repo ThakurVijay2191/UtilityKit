@@ -9,7 +9,7 @@ import Foundation
 
 @available(iOS 17.0, *)
 /// A model representing a user authenticated through Sign In with Apple.
-public struct AppleUser {
+public struct AppleUser: Sendable{
     /// The unique identifier for the Apple user.
     private let userId: String
     

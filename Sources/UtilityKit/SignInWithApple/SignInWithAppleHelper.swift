@@ -5,7 +5,7 @@ import UIKit
 
 @available(iOS 17.0, *)
 /// A helper class for implementing Sign In with Apple functionality, including user authentication and keychain management.
-public class SignInWithAppleHelper: NSObject {
+@MainActor public class SignInWithAppleHelper: NSObject {
     /// The shared singleton instance of the SignInWithAppleHelper.
     @MainActor public static let shared = SignInWithAppleHelper()
     
