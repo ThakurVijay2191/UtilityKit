@@ -24,7 +24,7 @@ public struct CustomContextMenu<Content: View, Preview: View>: View{
                 .overlay {
                     ContextMenuHelper(content: content, preview: preview, actions: menu)
                 }
-           
+
         }
     }
 }
@@ -58,27 +58,27 @@ fileprivate struct ContextMenuHelper<Content: View, Preview: View>: UIViewRepres
         view.addInteraction(interaction)
         return view
     }
-    
+
     func updateUIView(_ uiView: UIView, context: Context) {
-        
+
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }
-    
+
     class Coordinator: NSObject, UIContextMenuInteractionDelegate {
         var parent: ContextMenuHelper
         init(parent: ContextMenuHelper) {
             self.parent = parent
         }
-        
-        
+
+
         func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
             return UIContextMenuConfiguration(identifier: nil) {
                 let previewView = self.parent.preview
                 let hostingController = UIHostingController(rootView: previewView)
-                
+
                 // Make the background clear to avoid the white square
                 hostingController.view.backgroundColor = .clear
                 // Set preferred content size to match the SwiftUI view's size
@@ -90,6 +90,6 @@ fileprivate struct ContextMenuHelper<Content: View, Preview: View>: UIViewRepres
                 return self.parent.actions
             }
         }
-        
+
     }
 }
