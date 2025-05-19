@@ -10,41 +10,48 @@ import UIKit
     @MainActor public static let shared = SignInWithAppleHelper()
     /// The current nonce used for secure Apple ID token validation.
     private var currentNonce: String?
-     /// A KeychainItem for securely storing the Apple user ID.
+    /// A KeychainItem for securely storing the Apple user ID.
     private let keychain = KeychainItem(service: "com.utilitykit.appleUser", account: "appleUserId")
     
     /// A continuation to handle the async sign-in process.
-    public var continuation: (AppleUser?, Error?)->() = { _, _ in }
+    private var continuation: (AppleUser?, Error?)->() = { _, _ in }
  
     /// Initiates the Sign In with Apple process.
     /// - Returns: An `AppleUser` object containing the authenticated user's information.
     /// - Throws: An error if the sign-in process fails.
-    public func signIn(){
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
+    public func signIn() async throws -> AppleUser {
+        return try await withCheckedThrowingContinuation { continuation in
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.fullName, .email]
+
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+
+            self.continuation = { user, error in
+                if let user = user {
+                    continuation.resume(returning: user)
+                } else if let error = error {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
-  
 }
 
 @available(iOS 17.0, *)
 extension SignInWithAppleHelper: ASAuthorizationControllerDelegate {
-    /// - Tag: did_complete_authorization
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         switch authorization.credential {
         case let appleIDCredential as ASAuthorizationAppleIDCredential:
-            // Create an account in your system.
             if let fullName = appleIDCredential.fullName, let email = appleIDCredential.email{
                 let userIdentifier = appleIDCredential.user
                 self.saveUserInKeychain(userIdentifier, email: email, fullName: (fullName.givenName ?? "") + " " + (fullName.familyName ?? ""))
                 let appleUser = AppleUser(userId: userIdentifier, email: email, fullName: (fullName.givenName ?? "") + " " + (fullName.familyName ?? ""))
                 self.continuation(appleUser, nil)
-            }else {
+            } else {
                 let (userIdentifier, email, fullName) = self.getUserFromKeychain() ?? ("", "", "")
                 let appleUser = AppleUser(userId: userIdentifier, email: email, fullName: fullName)
                 self.continuation(appleUser, nil)
@@ -95,7 +102,6 @@ extension SignInWithAppleHelper: ASAuthorizationControllerDelegate {
 }
 
 extension SignInWithAppleHelper: ASAuthorizationControllerPresentationContextProviding {
-    /// - Tag: provide_presentation_anchor
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow ?? .init()
     }
