@@ -8,16 +8,14 @@ import UIKit
 @MainActor public class SignInWithAppleHelper: NSObject {
     /// The shared singleton instance of the SignInWithAppleHelper.
     @MainActor public static let shared = SignInWithAppleHelper()
-    private override init() {
-        
-    }
     /// The current nonce used for secure Apple ID token validation.
     private var currentNonce: String?
-    /// A continuation to handle the async sign-in process.
-    private var continuation: (AppleUser?, Error?)->() = { _, _ in }
-    /// A KeychainItem for securely storing the Apple user ID.
+     /// A KeychainItem for securely storing the Apple user ID.
     private let keychain = KeychainItem(service: "com.utilitykit.appleUser", account: "appleUserId")
     
+    /// A continuation to handle the async sign-in process.
+    public var continuation: (AppleUser?, Error?)->() = { _, _ in }
+
     /// Initiates the Sign In with Apple process.
     /// - Returns: An `AppleUser` object containing the authenticated user's information.
     /// - Throws: An error if the sign-in process fails.
