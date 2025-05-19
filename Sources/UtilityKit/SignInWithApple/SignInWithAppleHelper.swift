@@ -21,7 +21,7 @@ import UIKit
     /// Initiates the Sign In with Apple process.
     /// - Returns: An `AppleUser` object containing the authenticated user's information.
     /// - Throws: An error if the sign-in process fails.
-    func signIn(){
+    public func signIn(){
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         let request = appleIDProvider.createRequest()
         request.requestedScopes = [.fullName, .email]
