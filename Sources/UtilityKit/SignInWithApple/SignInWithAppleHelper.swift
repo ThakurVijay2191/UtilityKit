@@ -15,7 +15,7 @@ import UIKit
     
     /// A continuation to handle the async sign-in process.
     public var continuation: (AppleUser?, Error?)->() = { _, _ in }
-
+ 
     /// Initiates the Sign In with Apple process.
     /// - Returns: An `AppleUser` object containing the authenticated user's information.
     /// - Throws: An error if the sign-in process fails.
