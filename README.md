@@ -17,7 +17,7 @@ To integrate UtilityKit into your project using Swift Package Manager, add the f
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ThakurVijay2191/UtilityKit.git", from: "1.0.4")
+    .package(url: "https://github.com/ThakurVijay2191/UtilityKit.git", from: "1.1.0")
 ]
 ```
 
@@ -35,7 +35,7 @@ Then, include "UtilityKit" as a dependency for your target:
 1. Open your project in Xcode.
 2. Navigate to **File > Add Packages...**
 3. Enter the repository URL: `https://github.com/ThakurVijay2191/UtilityKit.git`
-4. Choose the desired version (e.g., **Up to Next Major Version** starting from `1.0.4`)
+4. Choose the desired version (e.g., **Up to Next Major Version** starting from `1.1.0`)
 5. Click **Add Package** to complete the integration.
 
 ## 📚 Usage
