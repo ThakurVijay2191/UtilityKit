@@ -10,9 +10,10 @@ import SwiftUI
 @available(iOS 17.0, *)
 public struct NetworkMonitorView<MainContent: View>: View {
     private var content: ()->MainContent
-    @State private var networkMonitor: NetworkMonitor = .init()
+    @ObservedObject private var networkMonitor: NetworkMonitor
     
-    public init(@ViewBuilder _ content: @escaping ()->MainContent) {
+    public init(networkMonitor: NetworkMonitor,@ViewBuilder _ content: @escaping ()->MainContent) {
+        self.networkMonitor = networkMonitor
         self.content = content
     }
     public var body: some View {

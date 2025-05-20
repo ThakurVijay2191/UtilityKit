@@ -14,7 +14,7 @@ public extension EnvironmentValues {
     
 }
 
-class NetworkMonitor: ObservableObject, @unchecked Sendable{
+public class NetworkMonitor: ObservableObject, @unchecked Sendable{
     @Published var isConnected: Bool?
     @Published var connectionType: NWInterface.InterfaceType?
     
