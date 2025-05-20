@@ -20,7 +20,7 @@ public class NetworkMonitor {
     var isConnected: Bool?
     var connectionType: NWInterface.InterfaceType?
     
-    private var queue = DispatchQueue(label: "Monitor", qos: .background)
+    private var queue = DispatchQueue(label: "Monitor")
     private var monitor = NWPathMonitor()
     
     init() {
