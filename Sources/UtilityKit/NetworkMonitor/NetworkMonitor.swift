@@ -21,7 +21,7 @@ public class NetworkMonitor: ObservableObject, @unchecked Sendable{
     private var queue = DispatchQueue(label: "Monitor")
     private var monitor = NWPathMonitor()
     
-    init() {
+    public init() {
         startMonitoring()
     }
     
