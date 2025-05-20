@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct NetworkMonitorView<MainContent: View>: View {
     @ViewBuilder public var content: MainContent
-    @State private var networkMonitor: NetworkMonitor = .init()
+    @State public var networkMonitor: NetworkMonitor = .init()
     public var body: some View {
         content
             .environment(\.isNetworkConnected, networkMonitor.isConnected)
