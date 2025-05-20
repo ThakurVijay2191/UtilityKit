@@ -8,7 +8,7 @@
 import SwiftUI
 import Network
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     @Entry var isNetworkConnected: Bool?
     @Entry var connectionType: NWInterface.InterfaceType?
     
@@ -16,7 +16,7 @@ extension EnvironmentValues {
 
 @MainActor
 @Observable
-class NetworkMonitor {
+public class NetworkMonitor {
     var isConnected: Bool?
     var connectionType: NWInterface.InterfaceType?
     
@@ -42,7 +42,7 @@ class NetworkMonitor {
         monitor.start(queue: queue)
     }
     
-    func stopMonitoring(){
+    public func stopMonitoring(){
         monitor.cancel()
     }
 }
