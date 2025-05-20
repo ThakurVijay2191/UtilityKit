@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+@available(iOS 17.0, *)
 public struct NetworkMonitorView<MainContent: View>: View {
-    @ViewBuilder public var content: MainContent
-    @State public var networkMonitor: NetworkMonitor = .init()
+    private var content: ()->MainContent
+    @State private var networkMonitor: NetworkMonitor = .init()
+    
+    public init(@ViewBuilder _ content: @escaping ()->MainContent) {
+        self.content = content
+    }
     public var body: some View {
-        content
+        content()
             .environment(\.isNetworkConnected, networkMonitor.isConnected)
             .environment(\.connectionType, networkMonitor.connectionType)
     }
