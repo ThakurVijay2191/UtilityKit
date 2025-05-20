@@ -14,11 +14,9 @@ public extension EnvironmentValues {
     
 }
 
-@MainActor
-@Observable
-public class NetworkMonitor {
-    var isConnected: Bool?
-    var connectionType: NWInterface.InterfaceType?
+class NetworkMonitor: ObservableObject, @unchecked Sendable{
+    @Published var isConnected: Bool?
+    @Published var connectionType: NWInterface.InterfaceType?
     
     private var queue = DispatchQueue(label: "Monitor")
     private var monitor = NWPathMonitor()
@@ -29,13 +27,13 @@ public class NetworkMonitor {
     
     private func startMonitoring(){
         monitor.pathUpdateHandler = { path in
-            Task { @MainActor in
-                self.isConnected = path.status == .satisfied
+            Task { @MainActor [weak self] in
+                self?.isConnected = (path.status == .satisfied)
                 let types: [NWInterface.InterfaceType] = [.wifi, .cellular, .wiredEthernet, .loopback]
                 if let type = types.first(where: { path.usesInterfaceType($0)}){
-                    self.connectionType = type
+                    self?.connectionType = type
                 }else {
-                    self.connectionType = nil
+                    self?.connectionType = nil
                 }
             }
         }
