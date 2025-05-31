@@ -160,35 +160,6 @@ public struct ThemeSwitcherModifier: ViewModifier {
 ///         If broader access is required, consider making them `internal` or `public`.
 
 fileprivate extension View {
-
-    /// Captures the view’s frame and exposes it using a `PreferenceKey` callback.
-    ///
-    /// This modifier uses `GeometryReader` to obtain the current view’s frame in global coordinates,
-    /// then passes that `CGRect` to the supplied closure whenever the frame changes.
-    ///
-    /// - Parameter value: A closure called with the view’s current frame (`CGRect`) whenever it changes.
-    ///
-    /// ### Example
-    /// ```swift
-    /// Text("Track my frame")
-    ///     .rect { frame in
-    ///         print("Frame: \(frame)")
-    ///     }
-    /// ```
-    ///
-    /// - SeeAlso: `RectKey`
-    @ViewBuilder
-    func rect(value: @escaping (CGRect) -> Void) -> some View {
-        self
-            .overlay {
-                GeometryReader {
-                    Color.clear
-                        .preference(key: RectKey.self, value: $0.frame(in: .global))
-                        .onPreferenceChange(RectKey.self, perform: value)
-                }
-            }
-    }
-
     /// Creates snapshot images of the root view before and after toggling dark mode.
     ///
     /// This is used to visually animate the transition between light and dark appearance
