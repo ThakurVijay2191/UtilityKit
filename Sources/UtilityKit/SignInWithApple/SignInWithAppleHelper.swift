@@ -57,7 +57,7 @@ extension SignInWithAppleHelper: ASAuthorizationControllerDelegate {
                 self.continuation(appleUser, nil)
             }
             
-        case let passwordCredential as ASPasswordCredential:
+        case _ as ASPasswordCredential:
             break
         default:
             break
