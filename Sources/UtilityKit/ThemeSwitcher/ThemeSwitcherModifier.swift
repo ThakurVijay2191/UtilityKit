@@ -196,30 +196,43 @@ fileprivate extension View {
     ) -> some View {
         self
             .onChange(of: toggleDarkMode) { oldValue, newValue in
-                Task {
-                    if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                        .windows.first(where: { $0.isKeyWindow }){
-                        let imageView = UIImageView()
-                        imageView.frame = window.frame
-                        imageView.image = window.image(window.frame.size)
-                        imageView.contentMode = .scaleAspectFit
-                        window.addSubview(imageView)
-                        if let rootView = window.rootViewController?.view{
-                            let frameSize = rootView.frame.size
-                            
-                            // Capture "before" snapshot
-                            activateDarkMode.wrappedValue = !newValue
-                            previousImage.wrappedValue = rootView.image(frameSize)
-                            
-                            // Capture "after" snapshot
-                            activateDarkMode.wrappedValue = newValue
-                            try await Task.sleep(for: .seconds(0.01))
-                            currentImage.wrappedValue = rootView.image(frameSize)
-                            try await Task.sleep(for: .seconds(0.01))
-                            imageView.removeFromSuperview()
-                        }
+                guard let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                        .windows.first(where: { $0.isKeyWindow }),
+                      let rootView = window.rootViewController?.view else { return }
+
+                let frameSize = rootView.frame.size
+
+                // Create image overlay (before any theme change)
+                let imageView = UIImageView()
+                imageView.frame = window.bounds
+                imageView.image = rootView.image(frameSize)
+                imageView.contentMode = .scaleAspectFit
+                window.addSubview(imageView)
+
+                // Step 1: Capture the 'previous' image before dark mode toggle
+                activateDarkMode.wrappedValue = !newValue
+
+                CATransaction.begin()
+                CATransaction.setCompletionBlock {
+                    // Snapshot after UI finishes layout (pre-toggle)
+                    previousImage.wrappedValue = rootView.image(frameSize)
+
+                    // Step 2: Now activate dark mode
+                    activateDarkMode.wrappedValue = newValue
+
+                    CATransaction.begin()
+                    CATransaction.setCompletionBlock {
+                        // Snapshot after UI finishes layout (post-toggle)
+                        currentImage.wrappedValue = rootView.image(frameSize)
+
+                        // Clean up
+                        imageView.removeFromSuperview()
                     }
+                    CATransaction.commit()
                 }
+                CATransaction.commit()
             }
     }
+
+
 }
