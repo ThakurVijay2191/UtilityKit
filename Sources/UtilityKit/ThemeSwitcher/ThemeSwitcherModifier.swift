@@ -30,14 +30,14 @@ public struct ThemeSwitcherModifier: ViewModifier {
     // MARK: - Properties
 
     /// The binding that determines whether dark mode is active.
-    @Binding var toggleTheme: Bool
+    @Binding var activateDarkMode: Bool
 
     /// Configuration for customizing the toggle button appearance and layout.
     var config: ThemeConfig
 
     /// Stores and observes the persistent dark mode state using `@AppStorage`.
-    @AppStorage("activateDarkMode")
-    private var activateDarkMode: Bool = false
+    @AppStorage("toggleDarkMode")
+    private var toggleDarkMode: Bool = false
 
     /// The frame of the toggle button, used to position the mask animation.
     @State private var buttonRect: CGRect = .zero
@@ -57,7 +57,7 @@ public struct ThemeSwitcherModifier: ViewModifier {
         content
             // Step 1: Create snapshot images
             .createImages(
-                toggleDarkMode: toggleTheme,
+                toggleDarkMode: toggleDarkMode,
                 currentImage: $currentImage,
                 previousImage: $previousImage,
                 activateDarkMode: $activateDarkMode
@@ -117,14 +117,14 @@ public struct ThemeSwitcherModifier: ViewModifier {
             // Step 3: Render the theme toggle button
             .overlay(alignment: config.sourceAlignment) {
                 Button {
-                    toggleTheme.toggle()
+                    toggleDarkMode.toggle()
                 } label: {
                     image
                         .resizable()
                         .renderingMode(.template)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: config.iconSize, height: config.iconSize)
-                        .foregroundStyle(toggleTheme ? config.iconDarkModeColor : config.iconLightModeColor)
+                        .foregroundStyle(toggleDarkMode ? config.iconDarkModeColor : config.iconLightModeColor)
                         .frame(width: config.buttonSize, height: config.buttonSize)
                 }
                 .rect {
@@ -145,9 +145,9 @@ public struct ThemeSwitcherModifier: ViewModifier {
     /// Resolves the appropriate icon to display based on the current theme and configuration.
     private var image: Image {
         if config.isSymbolImage {
-            Image(systemName: toggleTheme ? config.darkModeImage : config.lightModeImage)
+            Image(systemName: toggleDarkMode ? config.darkModeImage : config.lightModeImage)
         } else {
-            Image(toggleTheme ? config.darkModeImage : config.lightModeImage)
+            Image(toggleDarkMode ? config.darkModeImage : config.lightModeImage)
         }
     }
 }
@@ -198,19 +198,26 @@ fileprivate extension View {
             .onChange(of: toggleDarkMode) { oldValue, newValue in
                 Task {
                     if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                        .windows.first(where: { $0.isKeyWindow }),
-                       let rootView = window.rootViewController?.view {
-                        
-                        let frameSize = rootView.frame.size
-                        
-                        // Capture "before" snapshot
-                        activateDarkMode.wrappedValue = !newValue
-                        previousImage.wrappedValue = rootView.image(frameSize)
-                        
-                        // Capture "after" snapshot
-                        activateDarkMode.wrappedValue = newValue
-                        try await Task.sleep(for: .seconds(0.01))
-                        currentImage.wrappedValue = rootView.image(frameSize)
+                        .windows.first(where: { $0.isKeyWindow }){
+                        let imageView = UIImageView()
+                        imageView.frame = window.frame
+                        imageView.image = window.image(window.frame.size)
+                        imageView.contentMode = .scaleAspectFit
+                        window.addSubview(imageView)
+                        if let rootView = window.rootViewController?.view{
+                            let frameSize = rootView.frame.size
+                            
+                            // Capture "before" snapshot
+                            activateDarkMode.wrappedValue = !newValue
+                            previousImage.wrappedValue = rootView.image(frameSize)
+                            
+                            // Capture "after" snapshot
+                            activateDarkMode.wrappedValue = newValue
+                            try await Task.sleep(for: .seconds(0.01))
+                            currentImage.wrappedValue = rootView.image(frameSize)
+                            try await Task.sleep(for: .seconds(0.01))
+                            imageView.removeFromSuperview()
+                        }
                     }
                 }
             }

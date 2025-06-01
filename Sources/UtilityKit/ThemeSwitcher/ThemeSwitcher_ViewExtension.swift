@@ -26,16 +26,16 @@ import SwiftUI
 /// ```
 ///
 /// - Parameters:
-///   - toggleTheme: A `Binding<Bool>` to control whether the dark theme is enabled. Use `@AppStorage` to persist this value.
+///   - activateDarkMode: A `Binding<Bool>` to control whether the dark theme is enabled. Use `@AppStorage` to persist this value.
 ///   - config: An optional `ThemeConfig` struct that defines additional behavior for theme customization. Defaults to `ThemeConfig()`.
 /// - Returns: A view modified with `ThemeSwitcherModifier`, enabling theme toggling.
 ///
 /// - SeeAlso: `ThemeSwitcherModifier`, `ThemeConfig`, `@AppStorage`
 public extension View {
     @ViewBuilder
-    func themeSwitch(toggleTheme: Binding<Bool>, config: ThemeConfig = ThemeConfig()) -> some View {
+    func themeSwitch(activateDarkMode: Binding<Bool>, config: ThemeConfig = ThemeConfig()) -> some View {
         self.modifier(
-            ThemeSwitcherModifier(toggleTheme: toggleTheme, config: config)
+            ThemeSwitcherModifier(activateDarkMode: activateDarkMode, config: config)
         )
     }
     
