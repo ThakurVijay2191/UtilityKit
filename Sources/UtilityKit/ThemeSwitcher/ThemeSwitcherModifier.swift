@@ -197,34 +197,23 @@ fileprivate extension View {
         self
             .onChange(of: toggleDarkMode) { oldValue, newValue in
                 Task {
-                    guard let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                            .windows.first(where: { $0.isKeyWindow }),
-                          let rootView = window.rootViewController?.view
-                    else { return }
-
-                    let frameSize = rootView.frame.size
-
-                    // Overlay snapshot before dark mode switch
-                    let imageView = UIImageView()
-                    imageView.frame = window.bounds
-                    imageView.image = rootView.image(frameSize)
-                    imageView.contentMode = .scaleAspectFit
-                    window.addSubview(imageView)
-
-                    // Step 1: Capture previous image before toggle
-                    activateDarkMode.wrappedValue = !newValue
-                    try await Task.sleep(for: .milliseconds(100))
-                    previousImage.wrappedValue = rootView.image(frameSize)
-
-                    // Step 2: Toggle dark mode ON/OFF
-                    activateDarkMode.wrappedValue = newValue
-                    try await Task.sleep(for: .milliseconds(150)) // Ensure UI has updated
-
-                    // Step 3: Capture new image after toggle
-                    currentImage.wrappedValue = rootView.image(frameSize)
-
-                    // Step 4: Clean up the temporary image overlay
-                    imageView.removeFromSuperview()
+                    if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first(where: { $0.isKeyWindow }){
+                        let imageView = UIImageView()
+                        imageView.frame = window.frame
+                        imageView.image = window.rootViewController?.view.image(window.frame.size)
+                        imageView.contentMode = .scaleAspectFit
+                        window.addSubview(imageView)
+                        if let rootView = window.rootViewController?.view {
+                            let frameSize = rootView.frame.size
+                            activateDarkMode.wrappedValue = !newValue
+                            previousImage.wrappedValue = rootView.image(frameSize)
+                            activateDarkMode.wrappedValue = newValue
+                            try await Task.sleep(for: .seconds(0.01))
+                            currentImage.wrappedValue = rootView.image(frameSize)
+                            try await Task.sleep(for: .seconds(0.01))
+                            imageView.removeFromSuperview()
+                        }
+                    }
                 }
             }
     }
