@@ -196,43 +196,37 @@ fileprivate extension View {
     ) -> some View {
         self
             .onChange(of: toggleDarkMode) { oldValue, newValue in
-                guard let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                        .windows.first(where: { $0.isKeyWindow }),
-                      let rootView = window.rootViewController?.view else { return }
+                Task {
+                    guard let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                            .windows.first(where: { $0.isKeyWindow }),
+                          let rootView = window.rootViewController?.view
+                    else { return }
 
-                let frameSize = rootView.frame.size
+                    let frameSize = rootView.frame.size
 
-                // Create image overlay (before any theme change)
-                let imageView = UIImageView()
-                imageView.frame = window.bounds
-                imageView.image = rootView.image(frameSize)
-                imageView.contentMode = .scaleAspectFit
-                window.addSubview(imageView)
+                    // Overlay snapshot before dark mode switch
+                    let imageView = UIImageView()
+                    imageView.frame = window.bounds
+                    imageView.image = rootView.image(frameSize)
+                    imageView.contentMode = .scaleAspectFit
+                    window.addSubview(imageView)
 
-                // Step 1: Capture the 'previous' image before dark mode toggle
-                activateDarkMode.wrappedValue = !newValue
-
-                CATransaction.begin()
-                CATransaction.setCompletionBlock {
-                    // Snapshot after UI finishes layout (pre-toggle)
+                    // Step 1: Capture previous image before toggle
+                    activateDarkMode.wrappedValue = !newValue
+                    try await Task.sleep(for: .milliseconds(100))
                     previousImage.wrappedValue = rootView.image(frameSize)
 
-                    // Step 2: Now activate dark mode
+                    // Step 2: Toggle dark mode ON/OFF
                     activateDarkMode.wrappedValue = newValue
+                    try await Task.sleep(for: .milliseconds(150)) // Ensure UI has updated
 
-                    CATransaction.begin()
-                    CATransaction.setCompletionBlock {
-                        // Snapshot after UI finishes layout (post-toggle)
-                        currentImage.wrappedValue = rootView.image(frameSize)
+                    // Step 3: Capture new image after toggle
+                    currentImage.wrappedValue = rootView.image(frameSize)
 
-                        // Clean up
-                        imageView.removeFromSuperview()
-                    }
-                    CATransaction.commit()
+                    // Step 4: Clean up the temporary image overlay
+                    imageView.removeFromSuperview()
                 }
-                CATransaction.commit()
             }
     }
-
 
 }
