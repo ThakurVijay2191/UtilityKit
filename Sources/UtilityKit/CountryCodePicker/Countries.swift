@@ -1,9 +1,8 @@
 //
-//  Countries.swift
-//  CountryCode
+//  CountryModel.swift
+//  UtilityKit
 //
-//  Created by Created by WeblineIndia  on 01/07/23.
-//  Copyright © 2023 WeblineIndia . All rights reserved.
+//  Created by Jagdeep Singh on 04/06/25.
 //
 
 import Foundation
@@ -11,7 +10,7 @@ import Foundation
 open class Countries {
 
     /// Countries of the world with their country code phone extension and country flag.
-    public fileprivate(set) static var countries: [Country] = {
+    @MainActor public static let countries: [Country] = {
 
         var countries: [Country] = []
 
@@ -263,7 +262,7 @@ open class Countries {
     ///
     /// - Parameter phoneExtension: phone extension, exe. 1
     /// - Returns: Country
-    open class func countryFromPhoneExtension(_ phoneExtension: String) -> Country {
+    @MainActor open class func countryFromPhoneExtension(_ phoneExtension: String) -> Country {
         let phoneExtension = (phoneExtension as NSString).replacingOccurrences(of: "+", with: "")
         for country in countries {
             if country.isMain && phoneExtension == country.phoneExtension {
@@ -277,7 +276,7 @@ open class Countries {
     ///
     /// - Parameter countryCode: countryCode, exe. 39
     /// - Returns: Country
-    open class func countryFromCountryCode(_ countryCode: String) -> Country {
+    @MainActor open class func countryFromCountryCode(_ countryCode: String) -> Country {
         for country in countries {
             if countryCode == country.countryCode {
                 return country
@@ -290,7 +289,7 @@ open class Countries {
     ///
     /// - Parameter countryCodes: array of country codes
     /// - Returns: [Country]
-    open class func countriesFromCountryCodes(_ countryCodes: [String]) -> [Country] {
+    @MainActor open class func countriesFromCountryCodes(_ countryCodes: [String]) -> [Country] {
         return countryCodes.map { Countries.countryFromCountryCode($0) }
     }
     

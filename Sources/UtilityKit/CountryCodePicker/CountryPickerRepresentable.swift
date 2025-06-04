@@ -1,29 +1,39 @@
 import SwiftUI
 
-struct CountryPicker: UIViewControllerRepresentable {
+public extension View {
+    @ViewBuilder
+    func countryCodePicker(isPresented: Binding<Bool>, selectedCountry: Binding<CountryModel?>)-> some View {
+        self
+            .sheet(isPresented: isPresented) {
+                CountryPicker(country: selectedCountry)
+            }
+    }
+}
+
+fileprivate struct CountryPicker: UIViewControllerRepresentable {
     let countryPicker = CountriesViewController()
     @Binding var country: CountryModel?
     
-    func makeUIViewController(context: Context) -> CountriesViewController {
+    public func makeUIViewController(context: Context) -> CountriesViewController {
         countryPicker.allowMultipleSelection = false
         countryPicker.delegate = context.coordinator
         countryPicker.selectedCountry = country
         return countryPicker
     }
     
-    func updateUIViewController(_ uiViewController: CountriesViewController, context: Context) {
+    public func updateUIViewController(_ uiViewController: CountriesViewController, context: Context) {
         countryPicker.selectedCountry = country
     }
     
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         return Coordinator(self)
     }
     
-    class Coordinator: NSObject, CountriesViewControllerDelegate {
-        func countriesViewControllerDidCancel(_ countriesViewController: CountriesViewController) {
+    public class Coordinator: NSObject, @preconcurrency CountriesViewControllerDelegate {
+        public func countriesViewControllerDidCancel(_ countriesViewController: CountriesViewController) {
         }
         
-        func countriesViewController(_ countriesViewController: CountriesViewController, didSelectCountry country: Country) {
+        @MainActor public func countriesViewController(_ countriesViewController: CountriesViewController, didSelectCountry country: Country) {
             let cModel = CountryModel()
             if let info = getCountryAndName(country.countryCode) {
                 cModel.countryCode  = info.countryCode!
@@ -32,10 +42,10 @@ struct CountryPicker: UIViewControllerRepresentable {
             parent.country = cModel
         }
         
-        func countriesViewController(_ countriesViewController: CountriesViewController, didUnselectCountry country: Country) {
+        public func countriesViewController(_ countriesViewController: CountriesViewController, didUnselectCountry country: Country) {
         }
         
-        func countriesViewController(_ countriesViewController: CountriesViewController, didSelectCountries countries: [Country]) {
+        public func countriesViewController(_ countriesViewController: CountriesViewController, didSelectCountries countries: [Country]) {
         }
         
         var parent: CountryPicker
