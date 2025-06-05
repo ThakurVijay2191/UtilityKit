@@ -1,7 +1,17 @@
+//
+//  CountryListManager.swift
+//  UtilityKit
+//
+//  Created by Apple on 04/06/25.
+//
+
+import Foundation
+import UIKit
+import CoreData
 
 @MainActor
 @Observable
-fileprivate final class CountryListManager {
+final class CountryListManager {
     static let shared = CountryListManager()
     fileprivate init () {
         setupCountries()

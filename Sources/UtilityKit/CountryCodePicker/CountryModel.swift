@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class CountryModel{
+public struct CountryModel: Hashable{
     var countryCode: String?
     var countryName: String?
     var countryShortName: String?
@@ -20,7 +20,7 @@ public class CountryListModel{
     init(_ data: [JSON]) {
         country = [CountryModel]()
         for dt in data {
-            let ctyInfo = CountryModel()
+            var ctyInfo = CountryModel()
             ctyInfo.countryName = dt["name"].stringValue
             ctyInfo.countryCode = dt["dial_code"].stringValue
             ctyInfo.countryShortName = dt["code"].stringValue

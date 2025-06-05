@@ -17,7 +17,7 @@ struct CountryPicker: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     Button("Done") {
-                        
+                        isPresented = false
                     }
                 }
                 .padding(.horizontal, 8)
@@ -30,24 +30,43 @@ struct CountryPicker: View {
                         CountryListManager.shared.filteredCountries = CountryListManager.shared.partionedArray(allCountries, usingSelector: #selector(getter: NSFetchedResultsSectionInfo.name))
                     }
                 }
-                List {
-                    ForEach(CountryListManager.shared.filteredCountries, id: \.self){ list in
-                        if list.count > 0{
-                            Section(list.first?.name.prefix(1) ?? "") {
-                                ForEach(list, id: \.self){ country in
-                                    HStack {
-                                        Text("\(country.flag) \(country.name)")
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        Text("+\(country.phoneExtension)")
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach(CountryListManager.shared.filteredCountries, id: \.self) { list in
+                            if list.count > 0 {
+                                Section(list.first?.name.prefix(1) ?? "") {
+                                    ForEach(list, id: \.self) { country in
+                                        HStack {
+                                            Text("\(country.flag) \(country.name)")
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                            Text("+\(country.phoneExtension)")
+                                        }
+                                        .id(country) // <- Important: uniquely identify each row
+                                        .contentShape(.rect)
+                                        .onTapGesture {
+                                            Task { @MainActor in
+                                                selectedCountry = getCountryAndName(country.countryCode)
+//                                                isPresented = false
+                                                print(selectedCountry)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                        
                     }
-                   
+                    .listStyle(.plain)
+                    .onAppear {
+                        var transaction = Transaction()
+                        transaction.disablesAnimations = true
+                        withTransaction(transaction) {
+                            if let selected = selectedCountry {
+                                proxy.scrollTo(selected, anchor: .center)
+                            }
+                        }
+                    }
                 }
-                .listStyle(.plain)
+                
             }
             .toolbar {
                 ToolbarItem(placement: .keyboard) {
@@ -58,4 +77,19 @@ struct CountryPicker: View {
             }
         }
     }
+}
+
+struct TestView: View {
+    @State private var selectedCountry: CountryModel?
+    @State private var isCountryPickerPresented: Bool = false
+    var body: some View {
+        Button(selectedCountry?.countryCode ?? "Select Country") {
+            isCountryPickerPresented.toggle()
+        }
+        .countryCodePicker(isPresented: $isCountryPickerPresented, selectedCountry: $selectedCountry)
+    }
+}
+
+#Preview {
+    TestView()
 }

@@ -1,3 +1,12 @@
+//
+//  SearchBar.swift
+//  UtilityKit
+//
+//  Created by Apple on 04/06/25.
+//
+
+import SwiftUI
+
 struct SearchBar: UIViewRepresentable {
     var dismiss: Bool
     var onSearch: (String)->()
