@@ -15,36 +15,36 @@ public struct Endpoint: APIEndpoint {
     public var body: Data? = nil
     public var requiresAuth: Bool = true
 
-    init(_ path: String) {
+    public init(_ path: String) {
         self.path = path
     }
 
-    func post(body: Encodable) -> Endpoint {
+    public func post(body: Encodable) -> Endpoint {
         var copy = self
         copy.method = "POST"
         copy.body = try? JSONEncoder().encode(body)
         return copy
     }
 
-    func get() -> Endpoint {
+    public func get() -> Endpoint {
         var copy = self
         copy.method = "GET"
         return copy
     }
 
-    func set(headers: [String: String]) -> Endpoint {
+    public func set(headers: [String: String]) -> Endpoint {
         var copy = self
         copy.headers = headers
         return copy
     }
 
-    func auth(_ required: Bool) -> Endpoint {
+    public func auth(_ required: Bool) -> Endpoint {
         var copy = self
         copy.requiresAuth = required
         return copy
     }
 
-    func query(_ items: [URLQueryItem]) -> Endpoint {
+    public func query(_ items: [URLQueryItem]) -> Endpoint {
         var copy = self
         copy.queryItems = items
         return copy
