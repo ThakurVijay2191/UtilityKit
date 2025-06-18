@@ -5,14 +5,13 @@
 //  Created by Jagdeep Singh on 18/06/25.
 //
 
-import SwiftUI
+import Foundation
 
-struct SwiftUIView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
-
-#Preview {
-    SwiftUIView()
+public protocol APIEndpoint {
+    var path: String { get }
+    var method: String { get }
+    var headers: [String: String]? { get }
+    var queryItems: [URLQueryItem]? { get }
+    var body: Data? { get }
+    var requiresAuth: Bool { get }
 }

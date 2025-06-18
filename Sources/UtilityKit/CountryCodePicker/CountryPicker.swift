@@ -47,7 +47,7 @@ struct CountryPicker: View {
                                             Task { @MainActor in
                                                 selectedCountry = getCountryAndName(country.countryCode)
 //                                                isPresented = false
-                                                print(selectedCountry)
+                                                print(String(describing: selectedCountry))
                                             }
                                         }
                                     }

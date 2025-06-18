@@ -5,14 +5,49 @@
 //  Created by Jagdeep Singh on 18/06/25.
 //
 
-import SwiftUI
+import Foundation
 
-struct SwiftUIView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+public struct Endpoint: APIEndpoint {
+    public var path: String
+    public var method: String = "GET"
+    public var headers: [String: String]? = nil
+    public var queryItems: [URLQueryItem]? = nil
+    public var body: Data? = nil
+    public var requiresAuth: Bool = true
+
+    init(_ path: String) {
+        self.path = path
+    }
+
+    func post(body: Encodable) -> Endpoint {
+        var copy = self
+        copy.method = "POST"
+        copy.body = try? JSONEncoder().encode(body)
+        return copy
+    }
+
+    func get() -> Endpoint {
+        var copy = self
+        copy.method = "GET"
+        return copy
+    }
+
+    func set(headers: [String: String]) -> Endpoint {
+        var copy = self
+        copy.headers = headers
+        return copy
+    }
+
+    func auth(_ required: Bool) -> Endpoint {
+        var copy = self
+        copy.requiresAuth = required
+        return copy
+    }
+
+    func query(_ items: [URLQueryItem]) -> Endpoint {
+        var copy = self
+        copy.queryItems = items
+        return copy
     }
 }
 
-#Preview {
-    SwiftUIView()
-}

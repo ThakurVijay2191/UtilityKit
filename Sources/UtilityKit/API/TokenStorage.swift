@@ -5,14 +5,19 @@
 //  Created by Jagdeep Singh on 18/06/25.
 //
 
-import SwiftUI
+import Foundation
 
-struct SwiftUIView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+public final class TokenStorage: Sendable{
+    static let shared = TokenStorage()
+    private init() {}
+
+    var accessToken: String? {
+        get { UserDefaults.standard.string(forKey: "accessToken") }
+        set { UserDefaults.standard.set(newValue, forKey: "accessToken") }
     }
-}
 
-#Preview {
-    SwiftUIView()
+    var refreshToken: String? {
+        get { UserDefaults.standard.string(forKey: "refreshToken") }
+        set { UserDefaults.standard.set(newValue, forKey: "refreshToken") }
+    }
 }
