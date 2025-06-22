@@ -8,21 +8,51 @@
 import Foundation
 import Combine
 
-public final class APIService{
+/// A singleton service responsible for managing API requests, responses, and authentication flows.
+///
+/// `APIService` provides a modern, scalable, and configurable abstraction for making HTTP
+/// requests. It supports both async/await and Combine-based request patterns, and includes
+/// built-in handling for authentication, token refresh, response decoding, and error reporting.
+///
+/// This service is intended to be configured once at app launch using an `APIConfig` object,
+/// and used throughout the app via `APIService.shared`.
+public final class APIService {
+    
+    /// The shared singleton instance of `APIService`.
+    ///
+    /// Marked as `nonisolated(unsafe)` to allow safe use across concurrency domains.
     nonisolated(unsafe) public static let shared = APIService()
+
+    /// Private initializer to enforce singleton usage.
     private init() {}
 
     // MARK: - Configuration
+
+    /// The configuration used to define base URL, headers, and authentication behavior.
+    ///
+    /// This must be set before performing any requests. Attempting to request without configuring
+    /// will throw `APIError.notConfigured`.
     public var config: APIConfig!
 
+    /// Configures the `APIService` with a given `APIConfig` object.
+    ///
+    /// - Parameter config: The configuration defining network behavior, base URL, and token refresh.
     public func configure(_ config: APIConfig) {
         self.config = config
     }
 
+    /// A collection of Combine cancellables used to retain subscriptions (if needed).
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - Public Request (Async)
+    // MARK: - Public Request (Async/Await)
 
+    /// Performs a typed API request using Swift's async/await.
+    ///
+    /// - Parameters:
+    ///   - endpoint: An object conforming to `APIEndpoint`, describing the request.
+    ///   - responseType: The expected `Decodable` model type.
+    /// - Returns: A decoded response of the specified type.
+    /// - Throws: An `APIError` if the request fails, decoding fails, or auth errors occur.
     public func request<T: Decodable>(_ endpoint: APIEndpoint, responseType: T.Type) async throws -> T {
         guard config != nil else { throw APIError.notConfigured }
         return try await performRequest(endpoint: endpoint, responseType: responseType, retryOn401: true)
@@ -30,6 +60,12 @@ public final class APIService{
 
     // MARK: - Public Request (Combine)
 
+    /// Performs a typed API request using Combine and returns a publisher.
+    ///
+    /// - Parameters:
+    ///   - endpoint: An object conforming to `APIEndpoint`.
+    ///   - responseType: The expected `Decodable` model type.
+    /// - Returns: A publisher emitting either a decoded response or an `APIError`.
     public func requestPublisher<T: Decodable>(
         _ endpoint: APIEndpoint,
         responseType: T.Type
@@ -74,13 +110,21 @@ public final class APIService{
 
     // MARK: - Internal Request Logic
 
+    /// Internal function to build and execute a request, with optional retry on 401 (Unauthorized).
+    ///
+    /// - Parameters:
+    ///   - endpoint: The endpoint to request.
+    ///   - responseType: The expected `Decodable` model.
+    ///   - retryOn401: Whether to retry the request after a token refresh.
+    /// - Returns: A decoded instance of the specified type.
+    /// - Throws: An `APIError` on failure.
     public func performRequest<T: Decodable>(
         endpoint: APIEndpoint,
         responseType: T.Type,
         retryOn401: Bool
     ) async throws -> T {
         let request = try await buildRequest(for: endpoint)
-        
+
         if config.loggingEnabled {
             debugPrint("➡️ Request: \(request.httpMethod ?? "") \(request.url?.absoluteString ?? "")")
         }
@@ -123,6 +167,14 @@ public final class APIService{
 
     // MARK: - Build URLRequest
 
+    /// Builds a fully formed `URLRequest` from a given endpoint.
+    ///
+    /// This function merges base URL, path, query items, method, headers, body,
+    /// and handles attaching authentication tokens if required.
+    ///
+    /// - Parameter endpoint: The endpoint describing the request.
+    /// - Returns: A ready-to-use `URLRequest`.
+    /// - Throws: `APIError.invalidURL` or `APIError.notConfigured`.
     private func buildRequest(for endpoint: APIEndpoint) async throws -> URLRequest {
         guard let config else { throw APIError.notConfigured }
         guard var components = URLComponents(string: config.baseURL + endpoint.path) else {
@@ -135,7 +187,7 @@ public final class APIService{
         }
 
         var request = URLRequest(url: url)
-        request.httpMethod = endpoint.method
+        request.httpMethod = endpoint.method.rawValue
         request.httpBody = endpoint.body
 
         // Merge headers: config + endpoint + auth
@@ -153,6 +205,13 @@ public final class APIService{
 
     // MARK: - Token Refresh Logic
 
+    /// Attempts to refresh the access token using the configured refresh handler.
+    ///
+    /// If the refresh is successful, new tokens are stored and the original request is retried.
+    /// If the refresh fails, a session expiration notification is posted and the user
+    /// should be logged out.
+    ///
+    /// - Throws: `APIError.tokenRefreshFailed` on failure.
     private func refreshAccessToken() async throws {
         guard
             let refreshToken = TokenStorage.shared.refreshToken,
@@ -162,7 +221,6 @@ public final class APIService{
         }
 
         let endpoint = handler.endpointBuilder(refreshToken)
-
         let request = try await buildRequest(for: endpoint)
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -180,7 +238,6 @@ public final class APIService{
             throw APIError.tokenRefreshFailed
         }
     }
-
 }
 
 
