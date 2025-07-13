@@ -9,7 +9,7 @@ import SwiftUI
 
 /// A custom SwiftUI view that displays a circular button which morphs into a full-screen modal.
 /// The button animates from its original position into a full-screen cover, showing either the label or content based on state.
-struct MorphingButton<Label: View, Content: View>: View {
+public struct MorphingButton<Label: View, Content: View>: View {
     
     /// Controls whether the full-screen modal is presented.
     @Binding var isMenusPresented: Bool
@@ -29,7 +29,7 @@ struct MorphingButton<Label: View, Content: View>: View {
     /// Stores the global position and size of the button for transition animation.
     @State private var viewPosition: CGRect = .zero
     
-    var body: some View {
+    public var body: some View {
         label()
             .background(backgroundColor)
             .clipShape(.circle)
