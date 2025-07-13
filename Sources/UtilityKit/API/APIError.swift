@@ -73,7 +73,7 @@ public enum APIError: Error, LocalizedError {
     ///
     /// This computed property provides a human-readable explanation for each error case,
     /// and integrates seamlessly with Swift’s `LocalizedError` protocol.
-    public var errorDescription: String? {
+    public var errorDescription: String{
         switch self {
         case .invalidURL:
             return "The URL is invalid."
