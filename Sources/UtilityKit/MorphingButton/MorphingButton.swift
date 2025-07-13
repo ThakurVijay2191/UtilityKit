@@ -23,6 +23,18 @@ public struct MorphingButton<Label: View, Content: View>: View {
     /// The content to display in the full-screen modal once it morphs.
     @ViewBuilder var content: () -> Content
     
+    public init(
+        isMenusPresented: Binding<Bool>,
+        backgroundColor: Color,
+        @ViewBuilder label: @escaping () -> Label,
+        @ViewBuilder content: @escaping () -> Content,
+    ) {
+        self._isMenusPresented = isMenusPresented
+        self.backgroundColor = backgroundColor
+        self.label = label
+        self.content = content
+    }
+    
     /// Tracks whether to animate and show the full content or keep showing the label inside full-screen.
     @State private var animateContent: Bool = false
     
