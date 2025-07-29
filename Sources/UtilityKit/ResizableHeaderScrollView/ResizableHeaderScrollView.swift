@@ -60,7 +60,6 @@ public struct ResizableHeaderScrollView<Header, Content>: View where Header: Vie
         isSticky: Bool = false,
         @ViewBuilder header: @escaping (CGFloat, EdgeInsets) -> Header,
         @ViewBuilder content: @escaping () -> Content,
-        offsetY: CGFloat
     ) {
         self.minimumHeight = minimumHeight
         self.maximumHeight = maximumHeight
@@ -68,7 +67,6 @@ public struct ResizableHeaderScrollView<Header, Content>: View where Header: Vie
         self.isSticky = isSticky
         self.header = header
         self.content = content
-        self.offsetY = offsetY
     }
     
     /// The current vertical scroll offset, tracked as a state variable.
